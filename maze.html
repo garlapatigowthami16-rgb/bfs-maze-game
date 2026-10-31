@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BFS Maze Explorer</title>
+<style>
+:root{--bg:#0b1020;--panel:#131b30;--panel2:#18233d;--line:#2b3857;--text:#edf3ff;--muted:#a9b8d4;--cyan:#5ce1e6;--purple:#a78bfa;--green:#55e6a5;--orange:#ffbd69;--red:#ff7185}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#17284a 0%,var(--bg) 55%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+header{padding:25px 22px 16px;text-align:center}header .eyebrow{color:var(--cyan);font-weight:800;letter-spacing:3px;font-size:12px}h1{margin:9px 0;font-size:clamp(27px,4vw,42px);letter-spacing:-1px}h1 span{color:var(--cyan)}header p{margin:0 auto;color:var(--muted);max-width:760px;line-height:1.6}
+.app{max-width:1400px;margin:auto;padding:12px 18px 30px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(310px,.8fr);gap:16px}.panel{background:linear-gradient(145deg,rgba(24,35,61,.96),rgba(15,23,42,.97));border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 35px #0003;overflow:hidden}.panel-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.panel-head h2{font-size:16px;margin:0}.pill{font-size:11px;border:1px solid #35516d;background:#142d42;color:var(--cyan);padding:6px 10px;border-radius:30px;font-weight:800;letter-spacing:.5px}.maze-wrap{padding:17px}.maze{display:grid;grid-template-columns:repeat(21,minmax(0,1fr));gap:3px;max-width:850px;margin:auto;user-select:none}.cell{aspect-ratio:1;border-radius:4px;background:#e7edf7;display:flex;align-items:center;justify-content:center;font-size:clamp(9px,1.35vw,18px);font-weight:900;transition:background .15s,transform .15s;min-width:0}.cell.wall{background:#36425d;box-shadow:inset 0 0 0 1px #44516c}.cell.visited{background:#6654a8}.cell.frontier{background:#f2ad58;color:#202238}.cell.current{background:var(--cyan);color:#071522;box-shadow:0 0 0 2px white,0 0 16px #5ce1e677;transform:scale(1.04);z-index:1}.cell.path{background:var(--green);color:#073022}.cell.start{background:#50d9b0;color:#06281e}.cell.goal{background:#ff7185;color:#350914}.legend{display:flex;flex-wrap:wrap;gap:12px 17px;justify-content:center;padding:15px 5px 2px;color:var(--muted);font-size:12px}.legend span{display:flex;align-items:center;gap:6px}.swatch{width:12px;height:12px;border-radius:3px;display:inline-block}.controls{display:flex;flex-wrap:wrap;gap:9px;padding:0 17px 17px}.btn{border:1px solid #435474;background:#202e4a;color:var(--text);border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer;transition:.15s}.btn:hover{filter:brightness(1.17);transform:translateY(-1px)}.btn.primary{background:var(--cyan);color:#071522;border-color:var(--cyan)}.btn.success{background:#1d684f;border-color:#2c9d76}.btn:disabled{opacity:.38;cursor:not-allowed;transform:none}.speed{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.speed select{background:#202e4a;color:var(--text);border:1px solid #435474;border-radius:8px;padding:9px}
+.right{display:flex;flex-direction:column;gap:16px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px}.stat{background:#0d1629;border:1px solid #263653;border-radius:12px;padding:12px 10px}.stat small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px}.stat strong{display:block;font-size:24px;margin-top:5px}.stat:nth-child(1) strong{color:var(--cyan)}.stat:nth-child(2) strong{color:var(--orange)}.stat:nth-child(3) strong{color:var(--green)}.content{padding:16px 18px}.content h3{font-size:14px;margin:0 0 10px;color:#dbe7ff}.explain{line-height:1.6;font-size:13px;color:#d5e0f4;min-height:76px}.step-tag{display:inline-block;font-size:11px;color:var(--cyan);background:#113244;padding:5px 8px;border-radius:6px;margin-bottom:9px;font-weight:800}.queue{display:flex;flex-wrap:wrap;gap:6px;min-height:30px}.qcell{background:#283653;border:1px solid #415375;padding:6px 8px;border-radius:7px;font-size:11px;font-weight:700}.qcell:first-child{border-color:var(--orange);color:var(--orange)}.empty{font-size:12px;color:var(--muted);font-style:italic}.mini-note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5}.log{max-height:195px;overflow:auto;display:flex;flex-direction:column;gap:7px}.log-item{font-size:12px;color:#bdcbe2;padding:8px 10px;border-left:2px solid #52658a;background:#101a2d;border-radius:0 7px 7px 0;line-height:1.4}.log-item b{color:var(--cyan)}.formula{font-family:ui-monospace,Consolas,monospace;background:#0b1425;border:1px solid #2a3a59;border-radius:10px;padding:12px;font-size:12px;line-height:1.8;color:#c7d8f3}.formula .hi{color:var(--green)}.bottom{max-width:1400px;margin:0 auto;padding:0 18px 28px;color:var(--muted);font-size:12px;line-height:1.6}.mode{display:flex;gap:5px;background:#0d1629;padding:4px;border-radius:10px}.mode button{padding:7px 10px;font-size:11px;border:0;background:transparent;color:var(--muted);border-radius:7px;cursor:pointer}.mode button.active{background:#314362;color:#fff}
+@media(max-width:900px){.app{grid-template-columns:1fr}.right{display:grid;grid-template-columns:1fr 1fr}.right .panel:first-child{grid-column:1/-1}}@media(max-width:560px){.app{padding:8px}.right{display:flex}.maze-wrap{padding:9px}.maze{gap:2px}.cell{border-radius:2px}.controls{padding:0 10px 12px}.btn{padding:9px 10px;font-size:12px}.speed{margin-left:0}.panel-head{padding:13px}.stat strong{font-size:20px}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">ARTIFICIAL INTELLIGENCE · UNIT I</div><h1>BFS <span>Maze Explorer</span></h1><p>Discover the shortest path from START to GOAL. Play step by step or watch BFS search automatically, and see the queue, explored cells, and reasoning live.</p></header>
+<main class="app">
+<section class="panel"><div class="panel-head"><h2>🧩 The Maze</h2><span class="pill" id="statusPill">READY TO SEARCH</span></div><div class="maze-wrap"><div class="maze" id="maze" aria-label="Maze grid"></div><div class="legend"><span><i class="swatch" style="background:#50d9b0"></i>Start</span><span><i class="swatch" style="background:#ff7185"></i>Goal</span><span><i class="swatch" style="background:#f2ad58"></i>Frontier / Queue</span><span><i class="swatch" style="background:#6654a8"></i>Visited</span><span><i class="swatch" style="background:#5ce1e6"></i>Current cell</span><span><i class="swatch" style="background:#55e6a5"></i>Shortest path</span><span><i class="swatch" style="background:#36425d"></i>Wall</span></div></div><div class="controls"><button class="btn primary" id="stepBtn">▶ Start / Next Step</button><button class="btn" id="autoBtn">⚡ Auto Mode</button><button class="btn" id="pauseBtn" disabled>⏸ Pause</button><button class="btn success" id="newBtn">↻ New Random Maze</button><button class="btn" id="resetBtn">↺ Reset Search</button><div class="speed"><label for="speed">Speed</label><select id="speed"><option value="900">Slow</option><option value="450" selected>Normal</option><option value="150">Fast</option></select></div></div></section>
+<aside class="right">
+<section class="panel"><div class="panel-head"><h2>📡 Live Search Monitor</h2><div class="mode"><button id="manualMode" class="active">Manual</button><button id="autoMode">Auto</button></div></div><div class="stats"><div class="stat"><small>Steps</small><strong id="steps">0</strong></div><div class="stat"><small>Explored</small><strong id="explored">0</strong></div><div class="stat"><small>Path length</small><strong id="pathLen">—</strong></div></div><div class="content"><h3>📥 BFS Queue (FIFO)</h3><div class="queue" id="queue"><span class="qcell">(0, 0)</span></div><div class="mini-note">BFS removes the oldest cell first. Newly discovered neighbours are added to the back of the queue.</div></div></section>
+<section class="panel"><div class="panel-head"><h2>🧠 Why did BFS do that?</h2><span class="pill" id="stepTag">STEP 0</span></div><div class="content"><div class="explain" id="explain">Click <b>Start / Next Step</b> to begin. BFS starts at the green cell and explores neighbours level by level.</div><h3 style="margin-top:17px">Neighbours checked now</h3><div class="queue" id="neighbors"><span class="empty">No neighbours checked yet.</span></div><div class="mini-note" id="rule">Rule: explore Up, Right, Down, Left. Walls and already-visited cells are skipped.</div></div></section>
+<section class="panel"><div class="panel-head"><h2>🗒️ Search Activity</h2><span class="pill">LIVE LOG</span></div><div class="content"><div class="log" id="log"><div class="log-item">Ready. Generate a maze and start the search.</div></div></div></section>
+<section class="panel"><div class="panel-head"><h2>💡 BFS in a nutshell</h2></div><div class="content"><div class="formula"><span class="hi">1.</span> Add START to queue<br><span class="hi">2.</span> Remove front cell<br><span class="hi">3.</span> Check its neighbours<br><span class="hi">4.</span> Mark new cells + record parent<br><span class="hi">5.</span> Repeat until GOAL is found<br><span class="hi">6.</span> Follow parents backwards</div><div class="mini-note">Because every move costs one step, BFS finds a shortest path in an unweighted maze.</div></div></section>
+</aside></main><div class="bottom">Tip: use <b>Manual</b> mode to inspect each decision. Use <b>Auto Mode</b> to watch the search unfold. The green trail appears after BFS reaches the goal.</div>
+<script>
+const R=15,C=21,START=[0,0],GOAL=[R-1,C-1];let walls=[],queue=[],head=0,visited=new Set(),parent=new Map(),frontier=new Set(),current=null,done=false,failed=false,steps=0,explored=0,interval=null,mode='manual',path=[],depth=new Map(),discoveryOrder=[];
+const $=id=>document.getElementById(id);const key=(r,c)=>r+','+c;const pos=k=>k.split(',').map(Number);const dirs=[[-1,0,'Up'],[0,1,'Right'],[1,0,'Down'],[0,-1,'Left']];
+function randMaze(){
+  stopAuto();
+  let attempt=0;
+  do {
+    walls=new Set();
+    for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+      if((r===START[0]&&c===START[1])||(r===GOAL[0]&&c===GOAL[1])) continue;
+      if(Math.random()<.27) walls.add(key(r,c));
+    }
+    attempt++;
+  } while(!hasPath()&&attempt<500);
+
+  // Fix: a white/open cell surrounded by walls may be unreachable from START.
+  // Keep only open cells connected to START; unreachable open cells become walls,
+  // so BFS never appears to silently ignore a walkable-looking cell.
+  const reachable=new Set([key(...START)]);
+  const q=[key(...START)];
+  for(let i=0;i<q.length;i++){
+    const [r,c]=pos(q[i]);
+    for(const [dr,dc] of dirs){
+      const nr=r+dr,nc=c+dc,nk=key(nr,nc);
+      if(nr<0||nr>=R||nc<0||nc>=C||walls.has(nk)||reachable.has(nk)) continue;
+      reachable.add(nk); q.push(nk);
+    }
+  }
+  for(let r=0;r<R;r++) for(let c=0;c<C;c++){
+    const k=key(r,c);
+    if(k!==key(...START)&&k!==key(...GOAL)&&!walls.has(k)&&!reachable.has(k)) walls.add(k);
+  }
+
+  resetSearch();
+  renderMaze();
+  log('A new random maze is ready. All open cells are connected to START, so BFS can check every open cell. Start at (0, 0); reach the goal at ('+(R-1)+', '+(C-1)+').');
+  $('statusPill').textContent='READY TO SEARCH';
+}
+function hasPath(){let q=[key(...START)],seen=new Set(q);for(let i=0;i<q.length;i++){let [r,c]=pos(q[i]);if(r===GOAL[0]&&c===GOAL[1])return true;for(let [dr,dc] of dirs){let nr=r+dr,nc=c+dc,k=key(nr,nc);if(nr>=0&&nr<R&&nc>=0&&nc<C&&!walls.has(k)&&!seen.has(k)){seen.add(k);q.push(k)}}}return false}
+function resetSearch(){stopAuto();queue=[key(...START)];head=0;visited=new Set([key(...START)]);parent=new Map();depth=new Map([[key(...START),0]]);discoveryOrder=[key(...START)];frontier=new Set([key(...START)]);current=null;done=false;failed=false;steps=0;explored=0;path=[];$('steps').textContent='0';$('explored').textContent='0';$('pathLen').textContent='—';$('stepTag').textContent='STEP 0';$('explain').textContent='Click Start / Next Step to begin. BFS starts at the green cell and explores neighbours level by level.';$('neighbors').innerHTML='<span class="empty">No neighbours checked yet.</span>';$('queue').innerHTML='<span class="qcell">(0, 0)</span>';$('log').innerHTML='';$('statusPill').textContent='READY TO SEARCH';$('stepBtn').disabled=false;$('autoBtn').disabled=false;$('pauseBtn').disabled=true;renderMaze()}
+function renderMaze(){const el=$('maze');el.innerHTML='';for(let r=0;r<R;r++)for(let c=0;c<C;c++){let k=key(r,c),d=document.createElement('div');d.className='cell';if(walls.has(k))d.classList.add('wall');if(visited.has(k)&&!path.includes(k))d.classList.add('visited');if(frontier.has(k)&&!visited.has(k)===false&&!path.includes(k)){}if(frontier.has(k)&&k!==key(...START)&&!path.includes(k)&&k!==current)d.classList.add('frontier');if(path.includes(k))d.classList.add('path');if(current===k)d.className='cell current';if(k===key(...START)){d.className='cell start';d.textContent='S'}else if(k===key(...GOAL)){if(path.includes(k))d.className='cell path';else d.className='cell goal';d.textContent='G'}else if(current===k)d.textContent='●';else if(path.includes(k))d.textContent='•';el.appendChild(d)}}
+function log(msg){const el=$('log'),d=document.createElement('div');d.className='log-item';d.innerHTML=msg;el.prepend(d);while(el.children.length>30)el.lastChild.remove()}
+function updateQueue(){const el=$('queue'),items=queue.slice(head);el.innerHTML='';if(!items.length){el.innerHTML='<span class="empty">Queue is empty.</span>';return}items.slice(0,35).forEach((k,i)=>{let s=document.createElement('span');s.className='qcell';s.textContent='('+k.replace(',', ', ')+')';el.appendChild(s)});if(items.length>35){let s=document.createElement('span');s.className='qcell';s.textContent='+'+(items.length-35)+' more';el.appendChild(s)}}
+function showNeighbors(items){let el=$('neighbors');el.innerHTML='';if(!items.length){el.innerHTML='<span class="empty">No valid new neighbours this turn.</span>';return}items.forEach(n=>{let s=document.createElement('span');s.className='qcell';s.textContent=n.label+' → ('+n.r+', '+n.c+') '+n.result;el.appendChild(s)})}
+function step(){
+ if(done||failed)return;
+ if(head>=queue.length){
+   if(visited.has(key(...GOAL))){finishPath(key(...GOAL));return;}
+   failed=true;$('statusPill').textContent='NO PATH';$('explain').textContent='The queue is empty and the goal was not reached. Every reachable cell has now been checked.';$('stepBtn').disabled=true;stopAuto();return;
+ }
+ const k=queue[head++],[r,c]=pos(k);current=k;frontier.delete(k);steps++;explored++;
+ $('steps').textContent=steps;$('explored').textContent=explored;$('stepTag').textContent='STEP '+steps;
+ const neighbors=[],added=[];
+ log('<b>Step '+steps+':</b> Dequeue ('+r+', '+c+'). Check every direction: Up → Right → Down → Left.');
+ for(const [dr,dc,label] of dirs){
+   const nr=r+dr,nc=c+dc,nk=key(nr,nc);
+   if(nr<0||nr>=R||nc<0||nc>=C){neighbors.push({label,r:nr,c:nc,result:'REJECT: outside grid'});continue;}
+   if(walls.has(nk)){neighbors.push({label,r:nr,c:nc,result:'REJECT: wall'});continue;}
+   if(visited.has(nk)){neighbors.push({label,r:nr,c:nc,result:'REJECT: already discovered'});continue;}
+   visited.add(nk);frontier.add(nk);parent.set(nk,k);depth.set(nk,(depth.get(k)||0)+1);discoveryOrder.push(nk);queue.push(nk);added.push(nk);
+   neighbors.push({label,r:nr,c:nc,result:'OPEN → added to queue'});
+ }
+ showNeighbors(neighbors);
+ $('explain').innerHTML='<b>Exploring ('+r+', '+c+') · distance '+(depth.get(k)||0)+' from START.</b><br><b>Possibility check:</b> BFS checked all four directions. '+neighbors.map(n=>'<br>• '+n.label+': ('+n.r+', '+n.c+') — '+n.result+'.').join('')+'<br><br><b>Why this matters:</b> each open, undiscovered cell is added to the back of the FIFO queue exactly once. BFS explores cells by increasing distance, so the saved parent links give a shortest path.';
+ $('rule').textContent='This version keeps going after discovering GOAL, until the queue is empty. That way every reachable open cell is explored, while the shortest path is still recovered from the parent links.';
+ updateQueue();renderMaze();
+ if(added.length)log('<b>Added to queue:</b> '+added.map(x=>'('+x.replace(',', ', ')+')').join(', ')+'.');
+ if(head>=queue.length){if(visited.has(key(...GOAL))){finishPath(key(...GOAL));}else{failed=true;$('statusPill').textContent='NO PATH';$('explain').innerHTML='The queue is empty. Every reachable cell has been explored, but the goal cannot be reached.';$('stepBtn').disabled=true;stopAuto();}}
+}
+function finishPath(goal){
+ let k=goal;path=[k];while(parent.has(k)){k=parent.get(k);path.push(k);}path.reverse();done=true;current=null;frontier.clear();
+ $('pathLen').textContent=String(path.length-1);$('statusPill').textContent='ALL REACHABLE CELLS CHECKED';$('stepBtn').disabled=true;$('autoBtn').disabled=true;stopAuto();
+ $('explain').innerHTML='<b>Search complete — every reachable open cell has been explored.</b><br>The queue is empty, so BFS has finished checking all possible reachable cells. The green route was reconstructed by following parent links from GOAL back to START. It is a shortest path of <b>'+ (path.length-1)+' moves</b>, because BFS discovers cells in increasing distance order.';
+ $('stepTag').textContent='COMPLETE';showNeighbors([{label:'Goal',r:GOAL[0],c:GOAL[1],result:'reached; shortest route confirmed'}]);updateQueue();renderMaze();log('<b>Full search complete!</b> Explored '+explored+' cells. Shortest path length = '+(path.length-1)+' moves.');
+}
+function stopAuto(){if(interval){clearInterval(interval);interval=null}if($('pauseBtn'))$('pauseBtn').disabled=true}
+function auto(){if(done||failed)return;stopAuto();$('pauseBtn').disabled=false;$('statusPill').textContent='SEARCHING…';interval=setInterval(()=>{step();if(done||failed)stopAuto()},Number($('speed').value));}
+$('stepBtn').addEventListener('click',()=>{if(mode==='auto')auto();else{step();if(done||failed)$('statusPill').textContent=done?'SHORTEST PATH FOUND':'NO PATH'}});$('autoBtn').addEventListener('click',()=>{mode='auto';$('manualMode').classList.remove('active');$('autoMode').classList.add('active');auto()});$('pauseBtn').addEventListener('click',()=>{stopAuto();$('statusPill').textContent='PAUSED'});$('newBtn').addEventListener('click',randMaze);$('resetBtn').addEventListener('click',resetSearch);$('manualMode').addEventListener('click',()=>{mode='manual';stopAuto();$('manualMode').classList.add('active');$('autoMode').classList.remove('active');$('statusPill').textContent=done?'SHORTEST PATH FOUND':'MANUAL MODE'});$('autoMode').addEventListener('click',()=>{mode='auto';$('manualMode').classList.remove('active');$('autoMode').classList.add('active');auto()});$('speed').addEventListener('change',()=>{if(interval)auto()});randMaze();
+</script></body></html>

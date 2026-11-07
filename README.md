@@ -27,4 +27,8 @@ To help users understand how BFS explores different paths and finds the shortest
 3. Start exploring the maze!
 
 ## Project Demo
-Video link will be added soon.
+
+Watch the project demonstration on LinkedIn:
+
+[https://lnkd.in/p/dninhrRb](https://lnkd.in/p/dninhrRb)
+
